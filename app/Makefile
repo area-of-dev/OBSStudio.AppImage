@@ -17,7 +17,7 @@ all: clean init
 	mkdir --parents $(PWD)/build/Boilerplate.AppDir
 
 	$(PWD)/bin/Apprepo.AppImage --destination=$(PWD)/build appdir boilerplate obs-studio ffmpeg x264 \
-		xdg-desktop-portal xdg-desktop-portal-gtk xdg-desktop-portal-kde pipewire-media-session qt5-wayland \
+		xdg-desktop-portal xdg-desktop-portal-gtk xdg-desktop-portal-kde pipewire-media-session qtwayland5 qt5-wayland \
 	    libgdk-pixbuf2.0-0 libatk1.0-0 libatk-bridge2.0-0 libgtk2.0-0 \
 	    libreadline8 at-spi2-core libpango-1.0-0 libgtk-3-0 \
 		libwayland-cursor0 libselinux1 
