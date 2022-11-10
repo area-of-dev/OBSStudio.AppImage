@@ -23,7 +23,7 @@ all: clean init
 		libwayland-cursor0 libselinux1 
 
 	sed -i -e 's|../../obs-plugins/64bit|././././lib/obs-plugins|g' \
-		$(PWD)/build/Boilerplate.AppDir/lib64/libobs.so.0 || true
+		$(PWD)/build/Boilerplate.AppDir/lib64/libobs.so.0
 
 	echo ''                            >> $(PWD)/build/Boilerplate.AppDir/AppRun
 	echo ''                            >> $(PWD)/build/Boilerplate.AppDir/AppRun
