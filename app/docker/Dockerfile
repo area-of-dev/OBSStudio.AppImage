@@ -26,5 +26,4 @@ RUN apt-get install -y file unzip
 RUN apt-get install -y cmake gcc
 
 RUN add-apt-repository ppa:obsproject/obs-studio
-
 RUN apt-get update -y --fix-missing
