@@ -22,7 +22,8 @@ all: clean init
 	    libreadline8 at-spi2-core libpango-1.0-0 libgtk-3-0 \
 		libwayland-cursor0 libselinux1 
 
-	sed -i -e 's|../../obs-plugins/64bit|././././lib/obs-plugins|g' $(PWD)/build/Boilerplate.AppDir/lib64/libobs.so.0
+	sed -i -e 's|../../obs-plugins/64bit|././././lib/obs-plugins|g' \
+		$(PWD)/build/Boilerplate.AppDir/lib64/libobs.so.0 || true
 
 	echo ''                            >> $(PWD)/build/Boilerplate.AppDir/AppRun
 	echo ''                            >> $(PWD)/build/Boilerplate.AppDir/AppRun
