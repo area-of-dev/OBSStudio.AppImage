@@ -1,4 +1,4 @@
-# Copyright 2020 Alex Woroschilow (alex.woroschilow@gmail.com)
+# Copyright 2023 Alex Woroschilow (alex.woroschilow@gmail.com)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,25 +15,47 @@ PWD:=$(shell pwd)
 
 all: clean init
 	mkdir --parents $(PWD)/build/Boilerplate.AppDir
+	$(PWD)/bin/Apprepo.AppImage --destination=$(PWD)/build appdir boilerplate \
+		libavcodec-extra58 libavcodec58 libavutil56 libpython3.8 libswscale5 libswresample3 libavformat58 libavformat58-dev \
+		libsndfile1 libavdevice58 libvlc5 \
+		libwayland-cursor0 libselinux1  
 
-	$(PWD)/bin/Apprepo.AppImage --destination=$(PWD)/build appdir boilerplate obs-studio ffmpeg x264 \
-		xdg-desktop-portal xdg-desktop-portal-gtk xdg-desktop-portal-kde pipewire-media-session qtwayland5 qt5-wayland \
-	    libgdk-pixbuf2.0-0 libatk1.0-0 libatk-bridge2.0-0 libgtk2.0-0 \
-	    libreadline8 at-spi2-core libpango-1.0-0 libgtk-3-0 \
-		libwayland-cursor0 libselinux1 
+	rm -rf $(PWD)/build/obsstudio && \
+		mkdir --parents $(PWD)/build/obsstudio && \
+			git clone --recursive https://github.com/obsproject/obs-studio.git $(PWD)/build/obsstudio
 
-	sed -i -e 's|../../obs-plugins/64bit|././././lib/obs-plugins|g' \
-		$(PWD)/build/Boilerplate.AppDir/lib64/libobs.so.0
+	rm -rf $(PWD)/build/obsstudio/build && \
+		mkdir --parents $(PWD)/build/obsstudio/build
 
-	echo ''                            >> $(PWD)/build/Boilerplate.AppDir/AppRun
-	echo ''                            >> $(PWD)/build/Boilerplate.AppDir/AppRun
-	echo 'cd $${APPDIR}'               >> $(PWD)/build/Boilerplate.AppDir/AppRun
-	echo '$${APPDIR}/bin/obs "$${@}"'  >> $(PWD)/build/Boilerplate.AppDir/AppRun
+	cd $(PWD)/build/obsstudio/build && \
+		cmake -DLINUX_PORTABLE=ON -DCMAKE_INSTALL_PREFIX="${PWD}/portable" -DENABLE_NEW_MPEGTS_OUTPUT=OFF -DENABLE_BROWSER=OFF -DENABLE_PIPEWIRE=OFF -DENABLE_AJA=OFF ..
 
-	rm --force $(PWD)/build/Boilerplate.AppDir/*.desktop 		      || true
-	rm --force $(PWD)/build/Boilerplate.AppDir/*.png 		  	      || true
-	rm --force $(PWD)/build/Boilerplate.AppDir/*.svg 		  	      || true
-	rm --force $(PWD)/build/Boilerplate.AppDir/lib64/libstdc++.so.6*  || true
+	cd $(PWD)/build/obsstudio/build && \
+		make -j4 && make install
+
+	rm --recursive --force $(PWD)/build/Boilerplate.AppDir/data
+	rm --recursive --force $(PWD)/build/Boilerplate.AppDir/obs-plugins
+
+	cp --recursive --force ${PWD}/portable/lib/*         $(PWD)/build/Boilerplate.AppDir/lib64/
+	cp --recursive --force ${PWD}/portable/bin/*         $(PWD)/build/Boilerplate.AppDir/bin/
+	cp --recursive --force ${PWD}/portable/data          $(PWD)/build/Boilerplate.AppDir/data
+	cp --recursive --force ${PWD}/portable/obs-plugins   $(PWD)/build/Boilerplate.AppDir/obs-plugins
+
+	rm --recursive --force $(PWD)/build/Boilerplate.AppDir/cmake
+	rm --recursive --force $(PWD)/build/Boilerplate.AppDir/include
+	rm --recursive --force $(PWD)/build/Boilerplate.AppDir/lib64/libstdc++.so.6*
+
+	echo "LD_LIBRARY_PATH=\$${LD_LIBRARY_PATH}:\$${APPDIR}/obs-plugins" >> $(PWD)/build/Boilerplate.AppDir/AppRun
+	echo "LD_LIBRARY_PATH=\$${LD_LIBRARY_PATH}:\$${APPDIR}/data" 	    >> $(PWD)/build/Boilerplate.AppDir/AppRun
+	echo ""                                                             >> $(PWD)/build/Boilerplate.AppDir/AppRun
+	echo ""                                                             >> $(PWD)/build/Boilerplate.AppDir/AppRun
+	echo "export LD_LIBRARY_PATH=\$${LD_LIBRARY_PATH}" 				    >> $(PWD)/build/Boilerplate.AppDir/AppRun
+	echo "cd \$${APPDIR}/bin/64bit" 		                            >> $(PWD)/build/Boilerplate.AppDir/AppRun
+	echo "./obs \"\$${@}\"" 		                                    >> $(PWD)/build/Boilerplate.AppDir/AppRun
+
+	rm --force $(PWD)/build/Boilerplate.AppDir/*.desktop 		        || true
+	rm --force $(PWD)/build/Boilerplate.AppDir/*.png 		  	        || true
+	rm --force $(PWD)/build/Boilerplate.AppDir/*.svg 		  	        || true
 
 	cp --force $(PWD)/AppDir/*.desktop  $(PWD)/build/Boilerplate.AppDir/ || true
 	cp --force $(PWD)/AppDir/*.png      $(PWD)/build/Boilerplate.AppDir/ || true
